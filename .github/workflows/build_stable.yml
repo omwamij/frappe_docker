@@ -29,6 +29,11 @@ on:
 
   workflow_dispatch:
 
+# Superseded PR validation may stop; main/release runs retain unique groups.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('ci-pr-{0}-{1}', github.workflow, github.event.pull_request.number) || format('ci-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   v14:
     uses: ./.github/workflows/docker-build-push.yml
@@ -69,6 +74,7 @@ jobs:
   update_versions:
     name: Update example.env and pwd.yml
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v15
 
@@ -107,6 +113,7 @@ jobs:
   release_helm:
     name: Release Helm
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: ${{ github.repository == 'frappe/frappe_docker' && github.event_name != 'pull_request' }}
     needs: v15
 
