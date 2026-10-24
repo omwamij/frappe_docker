@@ -17,11 +17,11 @@ Parent Stable/Lint PR-only cancellation and bounded runner jobs; reusable build 
 
 ## Qualification phases
 
-| ID | Owner | Acceptance | State |
-|---|---|---|---|
-| CI-COST-01 | Engineering | Preserve distinct commands, validate workflow/scope/gate contracts; isolate changes | Implemented/local checks passed subject to limits above |
-| CI-COST-02 | QA/maintainer | Hosted selected jobs pass; compare docs/UI/shared/lock/workflow paths and runner seconds; inspect required-check names before adopting a renamed gate | Open |
-| CI-COST-03 | Human maintainer | Review exact PR revision and authorize merge; record resulting main CI | Open |
+| ID         | Owner            | Acceptance                                                                                                                                            | State                                                   |
+| ---------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| CI-COST-01 | Engineering      | Preserve distinct commands, validate workflow/scope/gate contracts; isolate changes                                                                   | Implemented/local checks passed subject to limits above |
+| CI-COST-02 | QA/maintainer    | Hosted selected jobs pass; compare docs/UI/shared/lock/workflow paths and runner seconds; inspect required-check names before adopting a renamed gate | Open                                                    |
+| CI-COST-03 | Human maintainer | Review exact PR revision and authorize merge; record resulting main CI                                                                                | Open                                                    |
 
 ## Deferred optimizations
 
