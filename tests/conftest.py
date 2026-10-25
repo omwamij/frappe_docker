@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.minio_fixture import ensure_minio_fixture
 from tests.utils import CI, Compose
 
 
@@ -130,6 +131,7 @@ class S3ServiceResult:
 
 @pytest.fixture
 def s3_service(python_path: str, compose: Compose):
+    image = ensure_minio_fixture()
     access_key = "AKIAIOSFODNN7EXAMPLE"
     secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     cmd = (
@@ -139,28 +141,32 @@ def s3_service(python_path: str, compose: Compose):
         "minio",
         "-d",
         "-e",
-        f"MINIO_ACCESS_KEY={access_key}",
+        f"MINIO_ROOT_USER={access_key}",
         "-e",
-        f"MINIO_SECRET_KEY={secret_key}",
+        f"MINIO_ROOT_PASSWORD={secret_key}",
         "--network",
         f"{compose.project_name}_default",
-        "minio/minio",
+        image,
         "server",
         "/data",
     )
     subprocess.check_call(cmd)
 
-    compose("cp", "tests/_create_bucket.py", "backend:/tmp")
-    compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")
-    compose.exec(
-        "-e",
-        f"S3_ACCESS_KEY={access_key}",
-        "-e",
-        f"S3_SECRET_KEY={secret_key}",
-        "backend",
-        python_path,
-        "/tmp/_create_bucket.py",
-    )
+    try:
+        compose("cp", "tests/_wait_minio.py", "backend:/tmp")
+        compose.exec("backend", python_path, "/tmp/_wait_minio.py")
+        compose("cp", "tests/_create_bucket.py", "backend:/tmp")
+        compose.exec("backend", "bench", "pip", "install", "boto3~=1.34.143")
+        compose.exec(
+            "-e",
+            f"S3_ACCESS_KEY={access_key}",
+            "-e",
+            f"S3_SECRET_KEY={secret_key}",
+            "backend",
+            python_path,
+            "/tmp/_create_bucket.py",
+        )
 
-    yield S3ServiceResult(access_key=access_key, secret_key=secret_key)
-    subprocess.call(("docker", "rm", "minio", "-f"))
+        yield S3ServiceResult(access_key=access_key, secret_key=secret_key)
+    finally:
+        subprocess.call(("docker", "rm", "minio", "-f"))

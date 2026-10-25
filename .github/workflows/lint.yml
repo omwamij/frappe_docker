@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Validate CI safety contracts
-        run: python3 -m unittest discover -s .github/tests -p test_ci_contract.py
+        run: python3 -m unittest discover -s .github/tests -p "test_*.py"
 
       - name: Setup Python
         uses: actions/setup-python@v6
