@@ -32,6 +32,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     services:
       registry:
         image: docker.io/registry:2
